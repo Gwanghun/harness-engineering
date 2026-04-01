@@ -69,10 +69,16 @@ AI 에이전트 기능의 하네스(가드레일, 오케스트레이션, 도구 
 ### 2-2. 패턴 선택
 
 **참조**: [orchestration-patterns.md](references/orchestration-patterns.md) — 7가지 패턴의 결정 트리, 비교 매트릭스
+**참조** (라우팅 구현이 필요할 때): [claw-code-patterns.md §1 Token Scoring Router](references/claw-code-patterns.md) — 토큰 스코어링 기반 경량 라우터 의사코드
 
 요구사항 분석 후 추천:
 - Prompt Chaining / Routing / Parallelization / Orchestrator-Workers / Evaluator-Optimizer
 - Manager Pattern / Handoff Pattern
+
+Routing 패턴을 선택한 경우, 구현 방식을 결정:
+- **토큰 스코어링 라우터**: LLM 없이 결정론적 매칭 (비용 0, 지연 0). 도구/커맨드 수 50개 이하에 적합.
+- **LLM 기반 분류기**: 의미적 이해 필요 시. 비용/지연 있으나 유연.
+- **하이브리드 (Two-Level Dispatch)**: 토큰 스코어링으로 후보 선별 → LLM이 최종 선택. 대규모 인벤토리에 권장.
 
 **원칙**: "단일 에이전트로 시작, 필요할 때만 복잡성 추가"
 
@@ -168,6 +174,7 @@ skill-name/
 **목표**: ACI 원칙으로 도구 명세.
 
 **참조**: [tool-design-aci.md](references/tool-design-aci.md) — 도구 유형, 4원칙, 명세 템플릿
+**참조** (도구 등록/실행 구조 설계 시): [claw-code-patterns.md §2 Execution Registry](references/claw-code-patterns.md) — Spec→Registry→Execution 3계층 패턴
 
 순서:
 1. 필요 도구 식별 (데이터/액션/오케스트레이션)
@@ -175,6 +182,7 @@ skill-name/
 3. ACI 적용: 명확성, 문서화, 포카요케, 자연스러운 포맷
 4. 도구 간 경계 정의
 5. 위험 등급 분류 (LOW/MEDIUM/HIGH)
+6. **도구 등록 구조 결정**: 도구 수 10개 이상이거나, 환경별 도구 세트가 다르거나, 권한 기반 필터링이 필요하면 Execution Registry 패턴 적용 검토
 
 MCP 서버 구현 시 `mcp-builder` 스킬 연동.
 
@@ -187,11 +195,16 @@ MCP 서버 구현 시 `mcp-builder` 스킬 연동.
 **목표**: 계층적 안전장치 구성.
 
 **참조**: [guardrails-catalog.md](references/guardrails-catalog.md) — 6가지 유형, 낙관적 실행, 체크리스트
+**참조** (도구 권한 제어 구현 시): [claw-code-patterns.md §3 Two-Stage Permission](references/claw-code-patterns.md) — 정적 필터 + 동적 승인 2단계 모델
 
 체크리스트를 사용자와 검토:
 - 프라이버시/평판 위험? PII? 외부 쓰기? 재정 영향? 비가역 행동?
 
 해당 위험에 맞는 가드레일 선택. 낙관적 실행 패턴 적용 (병렬 실행, 위반 시 개입). HIGH 등급은 사전 승인.
+
+**도구 권한 제어가 필요한 경우**, Two-Stage Permission 모델 적용 검토:
+- **Stage 1 (정적 필터)**: 환경별 deny list로 위험 도구 사전 차단 (비용 0)
+- **Stage 2 (동적 승인)**: Allow/Deny/Prompt 3모드 정책 + Prompter 추상화로 CLI/Web/CI 환경 대응
 
 **산출물**: 가드레일 설계서 + 구현 코드
 

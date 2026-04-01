@@ -55,15 +55,16 @@ Claude Code에서 다음과 같이 호출합니다:
 - **데이터 전달 프로토콜** -- 메시지/태스크/파일 기반 전략 정의
 - **에이전트 정의 파일 생성** -- `.claude/agents/{name}.md` 직접 생성
 - **스킬 파일 생성** -- Progressive Disclosure 기반 스킬 구조화
-- **ACI 도구 설계** -- 명확성, 문서화, 포카요케, 자연스러운 포맷
-- **계층적 가드레일** -- 6가지 유형 + 낙관적 실행 패턴
+- **ACI 도구 설계** -- 명확성, 문서화, 포카요케, 자연스러운 포맷 + Execution Registry 패턴
+- **계층적 가드레일** -- 6가지 유형 + 낙관적 실행 패턴 + Two-Stage Permission 모델
+- **실전 아키텍처 패턴** -- 상용 하네스에서 검증된 Token Scoring Router, Execution Registry, Two-Stage Permission 의사코드 제공
 - **검증 및 테스트** -- 구조/트리거/실행/드라이런 4단계 검증
 
 ## 디렉토리 구조
 
 ```
 harness-engineering/
-├── SKILL.md                                # 메인 스킬 (294줄)
+├── SKILL.md                                # 메인 스킬 (307줄)
 ├── README.md
 └── references/
     ├── orchestration-patterns.md            # 7가지 오케스트레이션 패턴
@@ -72,7 +73,8 @@ harness-engineering/
     ├── guardrails-catalog.md                # 6가지 가드레일 유형
     ├── evaluation-system.md                 # 평가 메트릭 + 테스트 케이스
     ├── human-in-the-loop.md                 # 체크포인트 + 자율성 단계
-    └── verification-testing.md              # 검증 방법론 상세
+    ├── verification-testing.md              # 검증 방법론 상세
+    └── claw-code-patterns.md               # 실전 하네스 아키텍처 패턴 (NEW)
 ```
 
 ## 참조 문서
@@ -86,6 +88,7 @@ harness-engineering/
 | `evaluation-system.md` | 기능/성능/안전 메트릭, 테스트 케이스 4유형(Happy/Edge/Adversarial/Failure), 반복 개선 사이클 | 7 |
 | `human-in-the-loop.md` | Approval Gate, Review Checkpoint, Confidence-Based Escalation, 점진적 자율성 확대 4단계 | 8 |
 | `verification-testing.md` | 구조 검증, 트리거 검증(should/should-NOT trigger), 실행 테스트(with/without skill), 드라이런 | 9 |
+| `claw-code-patterns.md` | Token Scoring Router, Execution Registry, Two-Stage Permission — 상용 하네스 아키텍처 패턴 의사코드 | 2, 5, 6 |
 
 ## 연동 스킬
 
